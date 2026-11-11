@@ -1,0 +1,1357 @@
+{
+  "name": "Application Prep Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Application Prep Agent",
+        "formDescription": "Turn a job posting and your CV into a ready-to-use application pack: company brief, honest fit score, CV fixes, a tailored cover letter and interview prep. Delivered to your inbox in minutes. Nothing you submit is stored.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Job posting URL",
+              "placeholder": "https://..."
+            },
+            {
+              "fieldLabel": "Job description",
+              "fieldType": "textarea",
+              "placeholder": "Optional: paste the job description here if the link does not work"
+            },
+            {
+              "fieldLabel": "CV",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "acceptFileTypes": ".pdf",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Extra achievements",
+              "fieldType": "textarea",
+              "placeholder": "Optional: paste results, numbers and experience that are not on your CV. The agent will only use facts from your CV and this field."
+            },
+            {
+              "fieldLabel": "Report language",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "English"
+                  },
+                  {
+                    "option": "German"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Your email",
+              "fieldType": "email",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false,
+          "buttonLabel": "Generate my application pack",
+          "respondWithOptions": {
+            "values": {
+              "formSubmittedText": "Thanks! Your application prep report is on its way and should arrive by email within 2–3 minutes."
+            }
+          },
+          "customCss": ":root {\n  --font-family: 'Inter', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;\n  --color-background: #EEF2FF;\n  --color-card-bg: #FFFFFF;\n  --color-card-border: #E0E7FF;\n  --color-card-shadow: rgba(67, 56, 202, 0.12);\n  --color-header: #111827;\n  --color-label: #374151;\n  --color-input-border: #D1D5DB;\n  --color-input-text: #111827;\n  --color-focus-border: #6366F1;\n  --color-submit-btn-bg: #4F46E5;\n  --color-submit-btn-text: #FFFFFF;\n  --border-radius-card: 16px;\n  --border-radius-input: 10px;\n  --container-width: 560px;\n  --font-size-header: 26px;\n  --font-size-label: 14px;\n  --font-size-input: 15px;\n}\n\nbody {\n  background: linear-gradient(160deg, #EEF2FF 0%, #F8FAFC 60%);\n}\n\n.card {\n  padding: 40px 36px;\n  box-shadow: 0 10px 40px var(--color-card-shadow);\n}\n\n.header::before {\n  content: '';\n  display: block;\n  width: 64px;\n  height: 64px;\n  margin: 0 auto 18px;\n  background: url(\"data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22 width=%2264%22 height=%2264%22%3E %3Cdefs%3E %3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22%3E %3Cstop offset=%220%22 stop-color=%22%236366F1%22/%3E %3Cstop offset=%221%22 stop-color=%22%234338CA%22/%3E %3C/linearGradient%3E %3C/defs%3E %3Crect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22url(%23g)%22/%3E %3Cpath d=%22M22 14h14l8 8v26a2 2 0 0 1-2 2H22a2 2 0 0 1-2-2V16a2 2 0 0 1 2-2z%22 fill=%22%23FFFFFF%22/%3E %3Cpath d=%22M36 14v6a2 2 0 0 0 2 2h6z%22 fill=%22%23C7D2FE%22/%3E %3Crect x=%2225%22 y=%2227%22 width=%2214%22 height=%222.5%22 rx=%221.25%22 fill=%22%23C7D2FE%22/%3E %3Crect x=%2225%22 y=%2232%22 width=%2210%22 height=%222.5%22 rx=%221.25%22 fill=%22%23C7D2FE%22/%3E %3Ccircle cx=%2244%22 cy=%2244%22 r=%229%22 fill=%22%2322C55E%22 stroke=%22%23FFFFFF%22 stroke-width=%222.5%22/%3E %3Cpath d=%22M40 44.2l2.8 2.8 5.2-5.6%22 fill=%22none%22 stroke=%22%23FFFFFF%22 stroke-width=%222.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E %3C/svg%3E\") center / contain no-repeat;\n}\n\n.header h1 {\n  font-weight: 700;\n  letter-spacing: -0.02em;\n}\n\n.header p {\n  color: #6B7280;\n  line-height: 1.6;\n}\n\n.submit-btn {\n  font-weight: 600;\n  letter-spacing: 0.01em;\n  transition: background 0.15s ease;\n}\n\n.submit-btn:hover {\n  background: #4338CA;\n}\n"
+        }
+      },
+      "id": "1e211f75-9c78-4413-b88a-2fbbd89ce620",
+      "name": "1. Form Trigger",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -400,
+        1360
+      ],
+      "webhookId": "303bee89-eea0-4549-9fb0-526864a3c5cb"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "CV",
+        "options": {}
+      },
+      "id": "7b4ef4f1-ba8e-4931-b5c1-535762f77af5",
+      "name": "2. Extract CV Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        1360
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "b5530cab-92e5-4d7d-aeeb-ff966f3eb371",
+              "leftValue": "={{ ($json.text || '').length }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "46dead80-0463-4b06-a9d2-595ad1326fb9",
+      "name": "CV Readable?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        48,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "The CV could not be read. Please upload a text-based PDF (not a scanned image)."
+      },
+      "id": "6d4c48b0-5760-47f0-b8f3-f20fb77ce21f",
+      "name": "Stop: CV Unreadable",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        272,
+        1520
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://r.jina.ai/' + ($('1. Form Trigger').first().json['Job posting URL'] || '') }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "id": "f7214694-7d21-4e71-a5f9-3dde600fe6ca",
+      "name": "3. Fetch Job Posting (Jina)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        272,
+        1248
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b11fcb3b-4b4c-40d1-9975-f614708bb11c",
+              "name": "job_text",
+              "value": "={{ ($('1. Form Trigger').first().json['Job description'] || '').length > 200 ? ($('1. Form Trigger').first().json['Job description'] || '') : ((typeof $json.data === 'string' && $json.data.length > 500 && !/returned error 4\\d\\d|captcha|access denied/i.test($json.data.slice(0, 3000))) ? $json.data.slice(0, 30000) : '') }}",
+              "type": "string"
+            },
+            {
+              "id": "8ca7fa45-0de1-489c-9afd-5e4ed22f38db",
+              "name": "job_source",
+              "value": "={{ ($('1. Form Trigger').first().json['Job description'] || '').length > 200 ? 'pasted text' : ((typeof $json.data === 'string' && $json.data.length > 500 && !/returned error 4\\d\\d|captcha|access denied/i.test($json.data.slice(0, 3000))) ? 'job posting URL' : 'none') }}",
+              "type": "string"
+            },
+            {
+              "id": "6350d988-f72c-4743-aba8-b8aceffdd40c",
+              "name": "cv_text",
+              "value": "={{ $('2. Extract CV Text').first().json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "237d8f87-5c34-443a-b8a5-a39dc89c1b47",
+      "name": "Choose Job Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c07bdc92-1f1d-4031-bb18-f04303694487",
+              "leftValue": "={{ $json.job_text.length }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "acf3ecb4-647e-4788-bd4f-b952e64c98a9",
+      "name": "Job Text Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        704,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "The job page could not be read. Please paste the job description into the form and submit again."
+      },
+      "id": "57d1eb34-c3f7-4477-aa65-26362ce56cde",
+      "name": "Stop: No Job Description",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        928,
+        1600
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Job posting:\n\n{{ $json.job_text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You extract structured information from job postings.\nReturn ONLY a JSON object with these keys:\n- company_name (string; the hiring company, not a job board)\n- role_title (string)\n- location (string, or \"Not stated\")\n- seniority (string, or \"Not stated\")\n- summary (string; 2-3 sentences on what the role is about)\n- must_haves (array of strings; required skills/experience)\n- nice_to_haves (array of strings)\n- responsibilities (array of strings; max 8)\nUse only information in the posting. Do not guess."
+            }
+          ]
+        }
+      },
+      "id": "b83f9839-5b0d-4eff-8690-fce7eb7537d9",
+      "name": "4. Parse Job (LLM)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        928,
+        1152
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "responseFormat": "json_object",
+          "temperature": 0
+        }
+      },
+      "id": "6fc6a6ea-0e7b-4da1-aef6-7382181ecac7",
+      "name": "OpenAI Model (parse)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        928,
+        1376
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "dPKwRzczP1N2SXI8",
+          "name": "OpenAi account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fad7158e-605d-4c76-9074-e61af9da327b",
+              "name": "job",
+              "value": "={{ JSON.parse($json.text) }}",
+              "type": "object"
+            },
+            {
+              "id": "a4a244a0-7778-4851-b63f-62c58cef5813",
+              "name": "job_text",
+              "value": "={{ $('Choose Job Text').first().json.job_text }}",
+              "type": "string"
+            },
+            {
+              "id": "833b6391-eb2d-4725-9bce-a4448ab67ecb",
+              "name": "cv_text",
+              "value": "={{ $('Choose Job Text').first().json.cv_text }}",
+              "type": "string"
+            },
+            {
+              "id": "c2dfc69f-9b1f-43bf-83a5-50b2eea8d896",
+              "name": "job_source",
+              "value": "={{ $('Choose Job Text').first().json.job_source }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "14c025ab-9d99-4772-97fc-f11d678ab545",
+      "name": "Job Details",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1152,
+        1152
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ query: $json.job.company_name + ' company business model strategy', max_results: 5, include_answer: 'basic' }) }}",
+        "options": {}
+      },
+      "id": "617e92d8-89f1-4fee-88c4-796b9a2dc9e6",
+      "name": "5. Web Search (Tavily)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1424,
+        640
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ZpeAWvETa8etXSTf",
+          "name": "Header Auth account 14"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://newsapi.org/v2/everything",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ '\"' + $json.job.company_name + '\"' }}"
+            },
+            {
+              "name": "language",
+              "value": "en"
+            },
+            {
+              "name": "sortBy",
+              "value": "publishedAt"
+            },
+            {
+              "name": "pageSize",
+              "value": "5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "48aa66fe-b88c-4b19-a99a-e4db167509dd",
+      "name": "6. News (NewsAPI)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1424,
+        1056
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "tWcMAYLQeMsbh39W",
+          "name": "Header Auth account 15"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "application-prep",
+          "mode": "list",
+          "cachedResultName": "application-prep"
+        },
+        "prompt": "Rules for rewriting CV bullets, structuring and writing a cover letter, tone to avoid, and interview prep with STAR stories and questions to ask",
+        "topK": 6,
+        "options": {}
+      },
+      "id": "f7a9ce1f-b08b-49ae-8232-a29b4b168f8e",
+      "name": "7b. RAG: Writing Guidelines",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        1648
+      ],
+      "credentials": {
+        "pineconeApi": {
+          "id": "0v0Wt79zVWdcfZTu",
+          "name": "PineconeApi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "86157675-7c30-4d04-856a-02dfb2f57f42",
+      "name": "OpenAI Embeddings (7b)",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1424,
+        1856
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "dPKwRzczP1N2SXI8",
+          "name": "OpenAi account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "document.pageContent",
+              "renameField": true,
+              "outputFieldName": "guidelines"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "363e97bf-d2cf-44d1-b2bc-9f8e3cca42ba",
+      "name": "Combine Guidelines",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1648,
+        1648
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 5,
+        "options": {}
+      },
+      "id": "9e873da4-fc95-4a20-bf28-0d945ec7f6cd",
+      "name": "Merge Research",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1904,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Output language: {{ ($('1. Form Trigger').first().json['Report language'] || 'English') }}\n\nRole: {{ $('Job Details').first().json.job.role_title }} at {{ $('Job Details').first().json.job.company_name }}\n\nMust-haves:\n{{ ($('Job Details').first().json.job.must_haves || []).join('\\n') }}\n\nNice-to-haves:\n{{ ($('Job Details').first().json.job.nice_to_haves || []).join('\\n') }}\n\nCandidate CV:\n{{ $('Job Details').first().json.cv_text }}\n\nACHIEVEMENT BANK (extra achievements provided by the candidate; may say 'None provided'):\n{{ ($json.achievements || []).join('\\n---\\n') }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a senior career coach. Compare a candidate with a job, honestly.\nUse ONLY the CV and the achievement bank as evidence. Never invent experience.\nDo NOT use tables. Do NOT add labels like \"(Achievement 1)\".\nWrite the whole output in the language requested, including headings and labels.\n\nWrite Markdown in exactly this format:\n\n## 2. Fit analysis\n\n**Fit score: [0-100]/100** – one sentence explaining the score.\nScoring: start at 100, subtract 10 for each Partial and 20 for each Gap. Only give 85+ if nearly all requirements are Strong.\n\n**✅ Strong matches**\n\n- **[Requirement]:** [evidence in max 15 words, with a number if available]\n\n**⚠️ Partial matches**\n\n- **[Requirement]:** [what the candidate has and what is missing, max 20 words]\n  → *How to address:* [one concrete, honest action, max 20 words]\n\n**❌ Gaps**\n\n- **[Requirement]:** [what is missing, max 15 words]\n  → *How to address:* [one concrete, honest action, max 20 words]\n\nRules:\n- Cover every must-have, plus languages or industry experience if the posting mentions them.\n- Mark Partial when the evidence is related but not a direct match. Do not mark everything Strong.\n- If a group is empty, write \"None\" under its heading.\n- Always write the score as digits in the format \"Fit score: 72/100\" (keep these exact words even in German).\n- Leave a blank line between groups."
+            }
+          ]
+        }
+      },
+      "id": "b6398f58-dda8-4ddd-b3b2-4f3956dca46b",
+      "name": "8. Analyze Fit (LLM)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        2128,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "69a5e580-5049-4950-9bc7-1729e420e187",
+      "name": "OpenAI Model (fit)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        2128,
+        1472
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "dPKwRzczP1N2SXI8",
+          "name": "OpenAi account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Output language: {{ ($('1. Form Trigger').first().json['Report language'] || 'English') }}\n\n{{ $json.fact_check_issues ? 'REVISION REQUIRED. Your previous draft contained these unsupported or non-compliant statements. Fix all of them:\\n' + $json.fact_check_issues + '\\n\\n' : '' }}Role: {{ $('Job Details').first().json.job.role_title }}\nCompany: {{ $('Job Details').first().json.job.company_name }}\nLocation: {{ $('Job Details').first().json.job.location }}\n\nRole summary: {{ $('Job Details').first().json.job.summary }}\nResponsibilities:\n{{ ($('Job Details').first().json.job.responsibilities || []).join('\\n') }}\nMust-haves:\n{{ ($('Job Details').first().json.job.must_haves || []).join('\\n') }}\n\nCOMPANY RESEARCH:\n{{ $('Merge Research').first().json.answer || '' }}\n{{ ($('Merge Research').first().json.results || []).map(r => '- ' + r.title + ' (' + r.url + '): ' + (r.content || '').slice(0, 500)).join('\\n') || 'NO RESULTS' }}\n\nCOMPANY PAGE (about, mission, values):\n{{ $('Merge Research').first().json.company_page || 'NO RESULTS' }}\n\nRECENT NEWS:\n{{ ($('Merge Research').first().json.articles || []).map(a => '- ' + (a.publishedAt || '').slice(0, 10) + ' | ' + a.title + ' (' + a.url + '): ' + (a.description || '')).join('\\n') || 'NO RESULTS' }}\n\nFIT ANALYSIS (insert as section 2):\n{{ $('8. Analyze Fit (LLM)').first().json.text }}\n\nCANDIDATE CV:\n{{ $('Job Details').first().json.cv_text }}\n\nACHIEVEMENT BANK (extra achievements provided by the candidate; may say 'None provided'):\n{{ ($('Merge Research').first().json.achievements || []).join('\\n---\\n') }}\n\nWRITING GUIDELINES:\n{{ ($('Merge Research').first().json.guidelines || []).join('\\n---\\n') }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a senior career coach writing an application prep report. The reader is busy: make it scannable.\n\nHARD RULES\n- Facts about the candidate: ONLY from the CV and the achievement bank. Never invent experience, numbers or skills.\n- Facts about the company: ONLY from the research, news and company page provided. No speculation or opinions. If a source block says NO RESULTS, write \"Limited public information found.\"\n- Follow the writing guidelines provided.\n- Write the whole report in the language requested, including headings. The cover letter must be in that language too.\n- No clichés or filler: \"excited to apply\", \"passionate\", \"dynamic\", \"driving strategic initiatives\", \"ensuring alignment and efficiency\", \"resonates with my journey\".\n- Do not use tables, except the \"At a glance\" table.\n- Always leave a blank line before and after headings, lists and tables.\n- If the input contains a REVISION REQUIRED block, fix every listed issue: remove or correct each unsupported statement.\n\nFORMAT (Markdown, exactly this structure)\n\n# [Role] at [Company]\n\n*Application prep report for [candidate name]*\n\n## At a glance\n\n| | |\n|---|---|\n| **Fit score** | [score]/100 |\n| **Biggest strengths** | [2 short items] |\n| **Main gaps** | [1-2 short items] |\n| **Top CV fix** | [the single most valuable change, in one line] |\n\n## 1. Company & role brief\n\n### The company\n\n3-4 bullets: what they do, business model, current situation, and one point on mission, values or culture from the company page.\n\n### Recent news\n\nBullets: **[YYYY-MM-DD]** headline – one line on why it matters for the candidate. Facts only.\n\n### What the role really needs\n\n3-5 bullets in plain words.\n\n[Insert the fit analysis exactly as provided]\n\n## 3. CV suggestions\n\n4-6 suggestions. Prioritize vague bullets (\"involved in\", \"helped\", \"worked on\", \"responsible for\", \"managing a team\"). Use exactly this format for each, with a blank line between suggestions:\n\n**[number]. [short topic]**\n\n- **Before:** [the current CV bullet, word for word]\n- **After:** [the rewrite: action verb + what + result, using specific facts and numbers from the CV or achievement bank, max 25 words]\n- **Why:** [one line on why it matters for this role]\n\nEvery \"After\" must contain a concrete fact from the CV or the achievement bank. Prefer numbers from the achievement bank when available. If no fact is available to strengthen a bullet, skip that bullet. If the achievement bank says \"None provided\", base the rewrites on the CV only and add one suggestion telling the candidate which results to add (e.g. team size, % improvement, time saved), without inventing numbers.\n\n## 4. Tailored cover letter\n\nPut the whole letter inside a blockquote (every line starts with \"> \", including empty lines between paragraphs).\n250-350 words. The first sentence must reference something specific about the company from the company page or research (mission, a value, a product, a recent move). Sign with the candidate's name.\n\n## 5. Interview prep\n\n### Talking points about the company\n\n3-5 bullets.\n\n### Likely questions\n\nNumbered list of 6-8 questions.\n\n### STAR stories\n\n3-4 stories, each in this format with a blank line between stories:\n\n**Story: [short title]** – use for questions [numbers]\n\n- **Situation:** ...\n- **Task:** ...\n- **Action:** ...\n- **Result:** ... (with numbers from the CV or achievement bank)\n\n### Questions to ask the interviewer\n\n3-5 questions specific to this company's situation and this role. Nothing generic.\n\n## Sources\n\nBulleted list: [title](url)"
+            }
+          ]
+        }
+      },
+      "id": "30d91dc1-1444-47d7-b8a8-30995e657ca3",
+      "name": "9. Write Report (LLM)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        2800,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.4
+        }
+      },
+      "id": "ac282e40-56be-48a8-a8dd-7e4be9bcc605",
+      "name": "OpenAI Model (report)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        2800,
+        1460
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "dPKwRzczP1N2SXI8",
+          "name": "OpenAi account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.report || $json.text }}",
+        "destinationKey": "html",
+        "options": {
+          "tables": true,
+          "openLinksInNewWindow": true
+        }
+      },
+      "id": "74cb32ad-b181-4f6d-9a20-015d8c7cd30d",
+      "name": "11a. Convert to HTML",
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        3760,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "your-sender@example.com",
+        "toEmail": "={{ $('1. Form Trigger').item.json['Your email'] }}",
+        "subject": "={{ 'Application prep: ' + $('Job Details').first().json.job.role_title + ' at ' + $('Job Details').first().json.job.company_name }}",
+        "html": "=<!DOCTYPE html><html><head><meta charset=\"utf-8\"><style>\nbody{margin:0;padding:0;background:#f4f5f7;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#1f2933;line-height:1.55;font-size:15px}\n.wrap{max-width:720px;margin:0 auto;background:#ffffff;padding:32px 36px}\nh1{font-size:22px;margin:0 0 6px;color:#111827}\nh2{font-size:18px;margin:32px 0 10px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;color:#111827}\nh3{font-size:15px;margin:20px 0 6px;color:#374151}\ntable{border-collapse:collapse;width:100%;margin:10px 0 16px;font-size:14px}\nth{background:#f3f4f6;text-align:left;padding:8px 10px;border:1px solid #e5e7eb}\ntd{padding:8px 10px;border:1px solid #e5e7eb;vertical-align:top}\nblockquote{margin:12px 0;padding:16px 20px;background:#f9fafb;border-left:4px solid #6366f1}\nul,ol{padding-left:22px} li{margin:4px 0} a{color:#4f46e5}\n.footer{font-size:12px;color:#6b7280;margin-top:32px;border-top:1px solid #e5e7eb;padding-top:12px}\n</style></head><body><div class=\"wrap\">\n{{ $json.html }}\n<div class=\"footer\">Generated by the Application Prep Agent. Facts about the candidate come only from their CV and achievement bank. Review before sending anything.</div>\n</div></body></html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        3980,
+        1248
+      ],
+      "id": "9188ff09-101b-4f5c-9a7a-88f301d9d46e",
+      "name": "11b. Send Email",
+      "webhookId": "675654ea-1142-4032-953b-818074aacdec",
+      "credentials": {
+        "smtp": {
+          "id": "1Q05OJwx1IP5jW9H",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ query: $json.job.company_name + ' official website about us mission values culture', max_results: 2, include_raw_content: 'markdown' }) }}",
+        "options": {}
+      },
+      "id": "3499fed7-5117-4171-972d-e2f6f0277983",
+      "name": "5b. Company Deep Read (Tavily)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1424,
+        848
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ZpeAWvETa8etXSTf",
+          "name": "Header Auth account 14"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "81fc3f76-3241-4478-9d66-02ee526e64ea",
+              "name": "company_page",
+              "value": "={{ ($json.results || []).map(r => r.title + ' (' + r.url + ')\\n' + (r.raw_content || r.content || '').slice(0, 3000)).join('\\n\\n') || 'NO RESULTS' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b625b0fc-d864-482c-81bd-bbcc4e22a8ed",
+      "name": "Extract Company Page",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1648,
+        848
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5daa3e1d-abc0-4b12-91bb-d35307e1ca75",
+              "name": "fit_score",
+              "value": "={{ Number((($json.text || '').match(/Fit score:\\s*\\**\\s*(\\d{1,3})/i) || [])[1]) || 50 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e4fb4257-782a-44a4-8f49-1ce6aab1d7eb",
+      "name": "Fit Score",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2352,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "47e5af8d-7998-49cf-86f2-f45f384e688a",
+              "leftValue": "={{ $json.fit_score }}",
+              "rightValue": 50,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "77e22b1e-f476-4a8f-a5ce-2397f3bfde9f",
+      "name": "Good Enough Match?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2560,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Output language: {{ ($('1. Form Trigger').first().json['Report language'] || 'English') }}\n\nRole: {{ $('Job Details').first().json.job.role_title }} at {{ $('Job Details').first().json.job.company_name }}\n\nFIT ANALYSIS:\n{{ $('8. Analyze Fit (LLM)').first().json.text }}\n\nCANDIDATE CV:\n{{ $('Job Details').first().json.cv_text }}\n\nACHIEVEMENT BANK (extra achievements provided by the candidate; may say 'None provided'):\n{{ ($('Merge Research').first().json.achievements || []).join('\\n---\\n') }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a senior career coach. The candidate is NOT a strong match for this role.\nWrite a short, honest and constructive note in Markdown, in the language requested. Max 250 words.\nUse ONLY the fit analysis, CV and achievement bank as facts. Never invent experience.\n\nStructure:\n\n# [Role] at [Company]: not a strong match\n\n**Fit score: [score]/100**\n\n## Why it is not a strong match\n2-4 bullets with the most important gaps.\n\n## What would make it a match\n2-3 bullets: concrete experience or skills that would close the gaps.\n\n## Recommendation\nOne short paragraph: apply anyway (and how to frame it) or focus on better-matching roles, with a one-line description of what those roles look like based on the candidate's strengths.\n\n[Then insert the full fit analysis exactly as provided]"
+            }
+          ]
+        }
+      },
+      "id": "6603ce97-b079-4bd3-b073-e58d812fa27e",
+      "name": "Low Match Note (LLM)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        2800,
+        1600
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "57f1877a-e7e5-4e96-9c60-88a105f87b46",
+      "name": "OpenAI Model (low match)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        2800,
+        1820
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "dPKwRzczP1N2SXI8",
+          "name": "OpenAi account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=REPORT TO CHECK:\n{{ $json.text }}\n\nCANDIDATE CV:\n{{ $('Job Details').first().json.cv_text }}\n\nACHIEVEMENT BANK (extra achievements provided by the candidate; may say 'None provided'):\n{{ ($('Merge Research').first().json.achievements || []).join('\\n---\\n') }}\n\nCOMPANY RESEARCH:\n{{ $('Merge Research').first().json.answer || '' }}\n{{ ($('Merge Research').first().json.results || []).map(r => '- ' + r.title + ': ' + (r.content || '').slice(0, 500)).join('\\n') || 'NO RESULTS' }}\n\nCOMPANY PAGE:\n{{ $('Merge Research').first().json.company_page || 'NO RESULTS' }}\n\nRECENT NEWS:\n{{ ($('Merge Research').first().json.articles || []).map(a => '- ' + (a.publishedAt || '').slice(0, 10) + ' | ' + a.title + ': ' + (a.description || '')).join('\\n') || 'NO RESULTS' }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a strict fact-checker for an application prep report.\n\nCheck:\n1. Every claim about the candidate (roles, numbers, skills, results, dates) is supported by the CV or the achievement bank. Rewording is fine. Correctly derived numbers are fine (e.g. 9 to 3 days = 67% faster).\n2. Every factual claim about the company is supported by the company research, company page or news. Advice and interview questions are not factual claims.\n3. The cover letter does not open with a generic phrase such as \"I am excited to apply\" or \"I am writing to apply\".\n4. Every \"After\" CV rewrite contains a concrete fact from the CV or the achievement bank (a suggestion that only tells the candidate which results to add is fine).\n\nReturn ONLY a JSON object:\n{\"passed\": true or false, \"issues\": [\"one short line per problem: the statement, where it appears, and why it fails\"]}\n\"passed\" is true only if \"issues\" is empty. Do not flag style preferences, only the four checks above."
+            }
+          ]
+        }
+      },
+      "id": "aac2512b-595f-40f3-bb2a-8c03323777b9",
+      "name": "10. Fact Check (LLM)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        3040,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0,
+          "responseFormat": "json_object"
+        }
+      },
+      "id": "030e4755-0e6c-4344-ab1e-f5831f793aa0",
+      "name": "OpenAI Model (fact check)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        3040,
+        1460
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "dPKwRzczP1N2SXI8",
+          "name": "OpenAi account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6a8668fd-5d5f-48b6-921e-b49fcb597e16",
+              "name": "passed",
+              "value": "={{ JSON.parse($json.text).passed === true }}",
+              "type": "boolean"
+            },
+            {
+              "id": "8af43c8e-8f69-41b6-82b8-f0f7cf150cc0",
+              "name": "issues",
+              "value": "={{ (JSON.parse($json.text).issues || []).join('\\n') }}",
+              "type": "string"
+            },
+            {
+              "id": "98c3e99b-2299-4159-8caa-1f2a6433b321",
+              "name": "attempt",
+              "value": "={{ $runIndex }}",
+              "type": "number"
+            },
+            {
+              "id": "abde73d4-24c7-4145-8065-718432406aa9",
+              "name": "report",
+              "value": "={{ JSON.parse($json.text).passed === true ? $('9. Write Report (LLM)').item.json.text : $('9. Write Report (LLM)').item.json.text + '\\n\\n---\\n\\n> ⚠️ **Automatic fact check:** these statements could not be fully verified against the sources. Review them before using the report:\\n>\\n' + (JSON.parse($json.text).issues || []).map(i => '> - ' + i).join('\\n') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8a9935b6-9f09-429b-b00e-3bb412e3ca83",
+      "name": "Fact Check Result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3280,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "45ba220f-3b74-47f1-b8eb-c05ac8b28977",
+              "leftValue": "={{ $json.passed }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "b3fe2a81-f5c6-4bc0-ad28-3de3372b81d3",
+              "leftValue": "={{ $json.attempt }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "e6e2492f-fdc7-40b7-a549-0ce8f814d61c",
+      "name": "Send Report?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3500,
+        1248
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d4939f22-8954-4e2f-b46a-292d99c75074",
+              "name": "fact_check_issues",
+              "value": "={{ $json.issues }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "adf2dfa1-8402-4dc0-aa3e-fe636f966043",
+      "name": "Prepare Retry",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3500,
+        1600
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a6bc3912-e7e9-429b-a94b-f3b99cf9e862",
+              "name": "achievements",
+              "value": "={{ ($('1. Form Trigger').first().json['Extra achievements'] || '').trim() ? [$('1. Form Trigger').first().json['Extra achievements'].slice(0, 15000)] : ['None provided. Use only the CV.'] }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c8863155-9754-4325-8cc8-0c02c250150a",
+      "name": "7a. Candidate Facts (from form)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1424,
+        1248
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "1. Form Trigger": {
+      "main": [
+        [
+          {
+            "node": "2. Extract CV Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Extract CV Text": {
+      "main": [
+        [
+          {
+            "node": "CV Readable?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop: CV Unreadable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CV Readable?": {
+      "main": [
+        [
+          {
+            "node": "3. Fetch Job Posting (Jina)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop: CV Unreadable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. Fetch Job Posting (Jina)": {
+      "main": [
+        [
+          {
+            "node": "Choose Job Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Choose Job Text": {
+      "main": [
+        [
+          {
+            "node": "Job Text Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Text Found?": {
+      "main": [
+        [
+          {
+            "node": "4. Parse Job (LLM)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop: No Job Description",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Model (parse)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "4. Parse Job (LLM)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. Parse Job (LLM)": {
+      "main": [
+        [
+          {
+            "node": "Job Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Embeddings (7b)": {
+      "ai_embedding": [
+        [
+          {
+            "node": "7b. RAG: Writing Guidelines",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "7b. RAG: Writing Guidelines": {
+      "main": [
+        [
+          {
+            "node": "Combine Guidelines",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Details": {
+      "main": [
+        [
+          {
+            "node": "5. Web Search (Tavily)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "6. News (NewsAPI)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "7b. RAG: Writing Guidelines",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "5b. Company Deep Read (Tavily)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "7a. Candidate Facts (from form)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. Web Search (Tavily)": {
+      "main": [
+        [
+          {
+            "node": "Merge Research",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6. News (NewsAPI)": {
+      "main": [
+        [
+          {
+            "node": "Merge Research",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Combine Guidelines": {
+      "main": [
+        [
+          {
+            "node": "Merge Research",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "OpenAI Model (fit)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "8. Analyze Fit (LLM)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Research": {
+      "main": [
+        [
+          {
+            "node": "8. Analyze Fit (LLM)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Model (report)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "9. Write Report (LLM)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "8. Analyze Fit (LLM)": {
+      "main": [
+        [
+          {
+            "node": "Fit Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "9. Write Report (LLM)": {
+      "main": [
+        [
+          {
+            "node": "10. Fact Check (LLM)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5b. Company Deep Read (Tavily)": {
+      "main": [
+        [
+          {
+            "node": "Extract Company Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Company Page": {
+      "main": [
+        [
+          {
+            "node": "Merge Research",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "OpenAI Model (low match)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Low Match Note (LLM)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Model (fact check)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "10. Fact Check (LLM)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "11a. Convert to HTML": {
+      "main": [
+        [
+          {
+            "node": "11b. Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fit Score": {
+      "main": [
+        [
+          {
+            "node": "Good Enough Match?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Good Enough Match?": {
+      "main": [
+        [
+          {
+            "node": "9. Write Report (LLM)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Low Match Note (LLM)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Low Match Note (LLM)": {
+      "main": [
+        [
+          {
+            "node": "11a. Convert to HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "10. Fact Check (LLM)": {
+      "main": [
+        [
+          {
+            "node": "Fact Check Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fact Check Result": {
+      "main": [
+        [
+          {
+            "node": "Send Report?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Report?": {
+      "main": [
+        [
+          {
+            "node": "11a. Convert to HTML",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Retry": {
+      "main": [
+        [
+          {
+            "node": "9. Write Report (LLM)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "7a. Candidate Facts (from form)": {
+      "main": [
+        [
+          {
+            "node": "Merge Research",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "49b42c0051ee1c04693c425c4d57eeb1072531f55d1515f0d9aeb5a5977f030a"
+  },
+  "tags": []
+}

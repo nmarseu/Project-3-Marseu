@@ -1,0 +1,276 @@
+{
+  "name": "RAG Loader - Application Prep Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Load a document into Pinecone",
+        "formDescription": "Upload one document from rag_docs/ at a time.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Document type",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "cv_guidelines"
+                  },
+                  {
+                    "option": "cover_letter_guidelines"
+                  },
+                  {
+                    "option": "interview_prep_guide"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Document",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "acceptFileTypes": ".md, .txt",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000001",
+      "name": "Upload Document",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        200
+      ],
+      "webhookId": "c3b2a1d4-6e5f-4b7a-9c8d-1e0f2a3b4c6d"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "application-prep",
+          "mode": "list",
+          "cachedResultName": "application-prep"
+        },
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000002",
+      "name": "Pinecone - Insert",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        300,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000003",
+      "name": "OpenAI Embeddings (insert)",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "loader": "textLoader",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "doc_type",
+                "value": "={{ $('Upload Document').item.json['Document type'] }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "b1000000-0000-4000-8000-000000000004",
+      "name": "Load Document",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        420,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "chunkSize": 1000,
+        "chunkOverlap": 150,
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000005",
+      "name": "Split into Chunks",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        520,
+        620
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "b1000000-0000-4000-8000-000000000006",
+      "name": "Test: Run Manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d1000000-0000-4000-8000-000000000001",
+              "name": "query",
+              "value": "How should a cover letter open?",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000007",
+      "name": "Test Question",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "application-prep",
+          "mode": "list",
+          "cachedResultName": "application-prep"
+        },
+        "prompt": "={{ $json.query }}",
+        "topK": 4,
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000008",
+      "name": "Pinecone - Search",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        440,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000009",
+      "name": "OpenAI Embeddings (search)",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        440,
+        1020
+      ]
+    }
+  ],
+  "connections": {
+    "Upload Document": {
+      "main": [
+        [
+          {
+            "node": "Pinecone - Insert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Embeddings (insert)": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone - Insert",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Document": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone - Insert",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split into Chunks": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Load Document",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test: Run Manually": {
+      "main": [
+        [
+          {
+            "node": "Test Question",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test Question": {
+      "main": [
+        [
+          {
+            "node": "Pinecone - Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Embeddings (search)": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone - Search",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

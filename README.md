@@ -1,127 +1,189 @@
 # Application Prep Agent
 
-An autonomous n8n agent that turns a **job posting link + a candidate's CV** into a ready-to-use application pack: a company and role brief, CV improvement suggestions, a tailored cover letter and interview prep.
+An autonomous n8n agent that turns a **job posting link and a CV** into a ready-to-use application pack, delivered by email: a company and role brief, an honest fit score, CV fixes, a tailored cover letter and interview prep. It fact-checks its own report before sending it.
 
 Built as Project 3 of the Ironhack AI Consulting & Automation Bootcamp.
+
+**Landing page:** see [`landing/index.html`](landing/index.html) &nbsp;·&nbsp; **Workflow:** [`workflow/application_prep_agent.json`](workflow/application_prep_agent.json)
 
 ---
 
 ## The problem
 
-Career services teams at bootcamps, universities and outplacement firms prepare dozens of candidates a week for specific job applications. For each one, a coach researches the company, compares the CV against the role, suggests edits and helps with the cover letter. That is 1–2 hours of mostly repetitive work per application.
+Career services teams at bootcamps, universities and outplacement firms prepare candidates for specific applications by hand: research the company, compare the CV with the role, suggest edits, help with the cover letter, prepare for the interview. We estimate this at 1–2 hours per application (a working assumption, to be validated in the first GTM sprint). Generic AI tools speed up the writing but often invent experience the candidate doesn't have.
 
 ## Who it's for
 
-- **Primary user:** career coaches and career services teams (bootcamps, universities, outplacement firms)
-- **End beneficiary:** the job seeker, who gets a tailored application pack in minutes instead of hours
+- **Buyer:** career services and coaching teams (bootcamps, universities, outplacement firms).
+- **User:** the coach, or the job seeker directly.
+- **What "useful" means:** a report a coach could hand to a candidate with light edits, where every claim about the candidate is backed by their own documents.
 
-## What it does
+## What the agent does
 
-1. Takes a job posting URL and a CV (PDF) through a form
-2. Reads the job posting and extracts role, company and must-have requirements
-3. Researches the company (profile and recent news)
-4. Retrieves CV and cover-letter best practices plus the candidate's achievement bank (RAG)
-5. Scores the CV against the role and identifies gaps
-6. Writes a structured report and delivers it as a Google Doc and by email
+Once the form is submitted, it runs without human input:
 
-### Report sections
+1. Reads the CV (PDF) and the job posting (via URL, or pasted text as a fallback).
+2. Extracts the role, company and requirements from the posting.
+3. Researches the company in parallel: web search, the company's own about/mission pages, recent news.
+4. Retrieves CV, cover letter and interview guidelines from a Pinecone knowledge base (RAG).
+5. Scores the fit against every requirement.
+6. **Decides:** below a score of 50 it sends a short "not a strong match" note; otherwise it writes the full pack.
+7. **Fact-checks** the report against the sources. If a claim is unsupported, the report is rewritten once; anything still unverified is flagged in the email.
+8. Emails the report in English or German.
 
-1. **Company & role brief:** what the company does, recent news, what the role really requires
-2. **Fit analysis:** match score, strengths, gaps
-3. **CV suggestions:** specific bullet rewrites, not a whole new CV
-4. **Tailored cover letter:** grounded only in achievements from the candidate's achievement bank
-5. **Interview prep:** likely questions, stories to use, questions to ask
+### The report
+
+| Section | Content |
+|---|---|
+| At a glance | Fit score, biggest strengths, main gaps, top CV fix |
+| 1. Company & role brief | Business model, mission/values, dated news, what the role really needs |
+| 2. Fit analysis | Score out of 100; each requirement marked strong, partial or gap, with how to address each gap |
+| 3. CV suggestions | Weak bullets rewritten with real numbers, before and after |
+| 4. Cover letter | 250–350 words, opening on something specific about the company |
+| 5. Interview prep | Talking points, likely questions, STAR stories, questions to ask |
+| Sources | Links to every source used |
 
 ---
 
 ## Stack decision: n8n
 
-The workflow is trigger-driven and mostly linear: a form submission starts the run, and it moves through fetching the posting, researching the company, matching the CV and writing the report. Its value depends on plugging into tools career services teams already use, like forms, Google Drive and email, and n8n's integrations handle those natively. The branching I need is simple and visible, such as falling back to pasted text when a job page can't be read, so a non-technical career services team could understand and maintain the workflow themselves. The reasoning steps are well-defined (research, match, critique, write) rather than open-ended exploration, so LangGraph's fine-grained control over agent loops isn't needed for this MVP. n8n also gets me to a reliable end-to-end demo within the 5-day timeline.
+Short version (full reasoning in [`stack_decision.md`](stack_decision.md)):
+
+The workflow is trigger-driven and mostly linear: a form submission starts the run, and it moves through fetching the posting, researching the company, matching the CV and writing the report. Its value depends on plugging into tools career services teams already use, like forms and email, and n8n handles those natively. The branching is explicit and visible (fallback when a job page can't be read, the fit-score gate, the fact-check retry), so a non-technical career services team can understand and maintain it. The reasoning steps are well-defined (research, match, critique, write, check) rather than open-ended exploration, so LangGraph's fine-grained control over agent loops isn't needed for this MVP. n8n also got the MVP to a reliable end-to-end demo within the 5-day timeline.
 
 ---
 
 ## Architecture
 
+Two workflows that share one Pinecone index:
+
+- **Ingestion** (`rag_loader.json`): loads the guideline documents into Pinecone. Runs only when the guidelines change.
+- **Agent** (`application_prep_agent.json`): runs on every form submission and reads from Pinecone.
+
 ```mermaid
 flowchart TD
-    A[1. Form trigger<br/>Job URL + CV PDF] --> B[2. Fetch job posting<br/>Page reader API]
-    B -. blocked .-> B2[Fallback:<br/>use pasted job text]
-    B --> C[3. Extract CV text<br/>Extract from File node]
-    C -. unreadable .-> C2[Stop + notify user]
-    C --> D[4. Parse job - LLM<br/>Role, company, must-haves]
-    D --> E[5. Web search<br/>Company profile]
-    D --> F[6. News API<br/>Recent news]
-    D --> G[7. Pinecone RAG<br/>Guides + achievement bank]
-    E --> H[8. Analyze fit - LLM<br/>CV vs role, gaps, score]
-    F --> H
-    G --> H
-    H --> I[9. Write report - LLM<br/>Brief, CV tips, cover letter, prep]
-    I --> J[10. Deliver<br/>Google Doc + email]
+    A[Form: job URL, CV, extra achievements, language, email] --> B[Extract CV text]
+    B -->|unreadable| X1[Stop: ask for a text-based PDF]
+    B --> C[Fetch job posting - Jina Reader]
+    C --> D{Job text found?<br/>URL or pasted text}
+    D -->|no| X2[Stop: ask to paste the description]
+    D -->|yes| E[Parse job - LLM]
+    E --> F1[Web search - Tavily]
+    E --> F2[Company deep read - Tavily]
+    E --> F3[News - NewsAPI]
+    E --> F4[Candidate facts - from form]
+    E --> F5[Guidelines - Pinecone RAG]
+    F1 & F2 & F3 & F4 & F5 --> G[Merge research]
+    G --> H[Fit analysis - LLM]
+    H --> I{Fit score >= 50?}
+    I -->|no| L[Low-match note - LLM]
+    I -->|yes| J[Write report - LLM]
+    J --> K[Fact check - LLM]
+    K --> K2{Passed, or second attempt?}
+    K2 -->|no| R[Add issues to prompt] --> J
+    K2 -->|yes| M[Convert to HTML]
+    L --> M
+    M --> N[Send email]
 ```
 
-Steps 5–7 run in parallel and are merged before the fit analysis.
+A screenshot of the n8n canvas is in [`docs/n8n_canvas.png`](docs/n8n_canvas.png).
 
----
-
-## Tools and APIs
+### Tools and APIs
 
 | Step | Purpose | Tool |
 |---|---|---|
-| 2 | Read the job posting page | _TBD (e.g. Jina Reader or Firecrawl)_ |
-| 5 | Company research | _TBD (e.g. Tavily or SerpAPI)_ |
-| 6 | Recent company news | _TBD (e.g. NewsAPI or GNews)_ |
-| 7 | Retrieval (RAG) | Pinecone |
-| 4, 8, 9 | Parsing, analysis, writing | _TBD (LLM provider)_ |
-| 10 | Delivery | Google Docs, Gmail |
+| Fetch job posting | Turn a job page into clean text | Jina Reader |
+| Web search | Company profile, business model | Tavily Search API |
+| Company deep read | Company's own about, mission and values pages | Tavily Search API (raw content) |
+| News | Recent company news | NewsAPI |
+| RAG | CV, cover letter and interview guidelines | Pinecone + OpenAI `text-embedding-3-small` |
+| Parse, analyse, write, check | LLM steps | OpenAI `gpt-4o-mini` |
+| Delivery | HTML email | Gmail via SMTP |
 
-## RAG: what's in the knowledge base
+### Grounding: how the agent avoids inventing facts
 
-- **CV and cover-letter guidelines:** best practices the agent uses to critique the CV and structure the letter
-- **Achievement bank:** a longer "master" record of the candidate's real experience and results
+- **Candidate facts** come only from the uploaded CV and the optional "Extra achievements" field. Nothing about candidates is stored in the knowledge base, so one person's facts can never appear in another person's report.
+- **Company facts** come only from the search, company page and news results. If a source returns nothing, the report says "Limited public information found."
+- **Guidelines** (how to write CV bullets, cover letters and interview prep) come from the RAG corpus in [`rag_docs/`](rag_docs/).
+- **Fact check:** a separate LLM step checks every claim against the sources and sends the report back for one rewrite if needed. Remaining issues are shown to the reader, never hidden.
 
-The cover letter may only use achievements found in the achievement bank. This keeps it from inventing experience the candidate doesn't have.
+### Error handling
 
-## Error handling
-
-- **Job page can't be read** (e.g. LinkedIn blocks automated access): fall back to job description text pasted into the form
-- **CV can't be parsed:** stop the workflow and notify the user
-- **Search or news returns nothing:** the section is marked "limited public info" instead of being filled in by the LLM
+| Situation | What happens |
+|---|---|
+| CV can't be read (e.g. scanned PDF) | Stops with a clear message |
+| Job page blocked or too short (e.g. LinkedIn login wall) | Uses the pasted job description; stops with a message if there is none |
+| Tavily or NewsAPI fails | Retries twice, then continues without that source |
+| Weak match (score below 50) | Sends a short, honest note instead of a full pack |
+| Report contains unsupported claims | Rewritten once; remaining issues flagged in the email |
 
 ---
 
 ## Setup
 
-> To be completed once the workflow is built.
+**Requirements:** an n8n instance (cloud or self-hosted) with the LangChain AI nodes, plus accounts for OpenAI, Pinecone, Tavily and NewsAPI (free tiers are enough for testing), and a Gmail account with an app password for sending. There is no Python code, so there is no `requirements.txt`.
 
-1. Clone the repo
-2. Copy `.env.example` to `.env` and add your API keys
-3. Import `workflow/application_prep_agent.json` into n8n
-4. Add credentials in n8n for each tool listed above
-5. Load the RAG documents into Pinecone
-6. Open the form URL and submit a job link + CV
+1. **Clone the repo** and copy `.env.example` to `.env` to keep track of your keys locally. n8n doesn't read this file; keys go into n8n credentials.
+2. **Create the Pinecone index:** name `application-prep`, one dense vector field named `_values`, dimension `1536`, metric `cosine`.
+3. **Create the n8n credentials:**
+   - OpenAI API
+   - Pinecone API
+   - Header Auth for Tavily: name `Authorization`, value `Bearer <your key>`
+   - Header Auth for NewsAPI: name `X-Api-Key`, value `<your key>`
+   - SMTP for Gmail: host `smtp.gmail.com`, port `587`, SSL/TLS off, your Gmail address and app password
+4. **Import** `workflow/rag_loader.json`, attach the credentials, run it once for each file in `rag_docs/`, then run the test branch to check retrieval.
+5. **Import** `workflow/application_prep_agent.json`, attach the credentials, and set the sender address in the **11b. Send Email** node.
+6. **Activate** the workflow and open the form URL from the **1. Form Trigger** node.
+7. **Optional:** paste `assets/form_custom.css` into the Form Trigger's *Custom Form Styling* option, and point the buttons in `landing/index.html` to your form URL.
+
+**Try it with the demo candidate:** upload `sample_inputs/CV_Sofia_Lindqvist.pdf` and paste the contents of `sample_inputs/achievement_bank.md` into "Extra achievements". Sofia is fictional.
+
+---
+
+## Sample reports
+
+Generated by the system, in [`sample_reports/`](sample_reports/):
+
+- `01_...md`
+- `02_...md`
+
+---
 
 ## Repository structure
 
 ```
 ├── README.md
-├── .env.example
-├── workflow/            # n8n workflow export (JSON)
-├── rag_docs/            # documents loaded into Pinecone
-├── sample_reports/      # at least 2 example reports
-├── stack_decision.md    # (optional, also covered above)
-└── gtm_future_sprints.md
+├── stack_decision.md         # n8n vs LangGraph
+├── gtm_future_sprints.md     # 3 go-to-market sprints
+├── .env.example              # which keys are needed
+├── workflow/
+│   ├── application_prep_agent.json   # the agent (n8n export)
+│   └── rag_loader.json               # loads guidelines into Pinecone
+├── rag_docs/                 # RAG corpus: CV, cover letter and interview guidelines
+├── sample_inputs/            # fictional demo candidate: CV + extra achievements
+├── sample_reports/           # reports generated by the system
+├── landing/index.html        # product landing page
+├── assets/                   # logo and form styling
+└── docs/                     # canvas screenshot, demo script
 ```
 
-## Sample reports
+---
 
-_Coming soon: at least 2 reports on different job postings in `sample_reports/`._
+## Known limitations
+
+- **NewsAPI free plan** is for development only, delays articles by 24 hours and covers one month. A production version needs a paid news source.
+- **Gmail SMTP** has daily sending limits. A production version needs a transactional email service and its own domain.
+- **Job boards like LinkedIn** often block automated reading; the pasted-description fallback covers this.
+- **The fact-checker is itself an LLM.** It reduces invented claims but doesn't guarantee zero errors, which is why remaining issues are shown to the reader.
+- **All LLM steps use `gpt-4o-mini`** to keep costs low. A stronger model for the fit analysis, report and fact check would improve quality.
+- **One rewrite only** after the fact check, to keep run time and cost predictable.
 
 ## Go-to-market
 
-See [`gtm_future_sprints.md`](gtm_future_sprints.md) for the 2–3 future sprints (goal, buyer, channel, deliverable, success metric).
+See [`gtm_future_sprints.md`](gtm_future_sprints.md) for the three sprints that take this MVP towards paying customers.
 
 ---
 
 ## Author
 
-Nicolò
+Nicolò Marseu

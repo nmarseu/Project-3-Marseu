@@ -1,0 +1,166 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --font-family: 'Inter', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-size-body: 14px;
+  --font-size-label: 14px;
+  --font-size-input: 15px;
+  --font-size-header: 30px;
+  --font-size-paragraph: 15px;
+  --color-background: #F6F7FB;
+  --color-card-bg: #FFFFFF;
+  --color-card-border: #E2E5EE;
+  --color-card-shadow: rgba(20, 24, 38, 0.10);
+  --color-header: #141826;
+  --color-label: #141826;
+  --color-link: #5B6275;
+  --color-input-border: #D5D9E4;
+  --color-input-text: #141826;
+  --color-input-bg: #FFFFFF;
+  --color-focus-border: #4338CA;
+  --color-submit-btn-bg: #4338CA;
+  --color-submit-btn-text: #FFFFFF;
+  --color-required: #4338CA;
+  --border-radius-card: 20px;
+  --border-radius-input: 12px;
+  --padding-card: 40px;
+  --padding-form-input: 13px 14px;
+  --container-width: 600px;
+  --submit-btn-height: 52px;
+  --box-shadow-card: 0 18px 50px var(--color-card-shadow);
+  --opacity-placeholder: 0.55;
+}
+
+body {
+  background: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  width: min(600px, calc(100% - 32px));
+  padding-top: 48px;
+}
+
+/* Text boxes, selects and buttons use the page font */
+input, textarea, select, button {
+  font-family: var(--font-family);
+}
+
+/* Logo above the title */
+.form-header::before {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 20px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236366F1'/%3E%3Cstop offset='1' stop-color='%234338CA'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Cpath d='M22 14h14l8 8v26a2 2 0 0 1-2 2H22a2 2 0 0 1-2-2V16a2 2 0 0 1 2-2z' fill='%23FFFFFF'/%3E%3Cpath d='M36 14v6a2 2 0 0 0 2 2h6z' fill='%23C7D2FE'/%3E%3Crect x='25' y='27' width='14' height='2.5' rx='1.25' fill='%23C7D2FE'/%3E%3Crect x='25' y='32' width='10' height='2.5' rx='1.25' fill='%23C7D2FE'/%3E%3Ccircle cx='44' cy='44' r='9' fill='%2322C55E' stroke='%23FFFFFF' stroke-width='2.5'/%3E%3Cpath d='M40 44.2l2.8 2.8 5.2-5.6' fill='none' stroke='%23FFFFFF' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.form-header h1 {
+  font-family: 'Bricolage Grotesque', 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+.form-header p {
+  padding-top: 12px;
+  line-height: 1.6;
+  max-width: 30em;
+  margin: 0 auto;
+}
+
+.inputs-wrapper {
+  display: grid;
+  gap: 20px;
+  padding-top: 32px;
+  padding-bottom: 28px;
+  border-top: 1px solid var(--color-card-border);
+  margin-top: 28px;
+}
+
+.form-group {
+  margin-bottom: 0 !important;
+}
+
+/* Hide the empty error line under each field (it reserved space) */
+.error-hidden {
+  display: none;
+}
+
+form label {
+  font-weight: 600;
+  padding-bottom: 8px;
+}
+
+form .form-input,
+.select-input {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+form textarea {
+  min-height: 96px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+form textarea:focus,
+form input:focus,
+.select-input:focus-within {
+  border-color: var(--color-focus-border);
+  box-shadow: 0 0 0 4px rgba(67, 56, 202, 0.14);
+}
+
+::placeholder {
+  font-family: var(--font-family);
+  color: #5B6275;
+}
+
+/* File upload */
+.file-input-wrapper .form-input {
+  border-style: dashed;
+  background: #F6F7FB;
+  cursor: pointer;
+}
+
+input[type='file']::file-selector-button {
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 14px;
+  color: #4338CA;
+  background: #E8E7FB;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin-right: 12px;
+  cursor: pointer;
+}
+
+/* Submit button */
+#submit-btn {
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 12px;
+  letter-spacing: 0.01em;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+#submit-btn:hover {
+  background: #3730A3;
+  transform: translateY(-1px);
+}
+
+/* Confirmation card after submitting */
+#submitted-form .form-header h1 {
+  font-size: 26px;
+}
+
+@media (max-width: 520px) {
+  :root { --padding-card: 24px; --font-size-header: 25px; }
+  .container { padding-top: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #submit-btn, form .form-input, .select-input { transition: none; }
+}
