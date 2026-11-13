@@ -4,7 +4,7 @@ An autonomous n8n agent that turns a **job posting link and a CV** into a ready-
 
 Built as Project 3 of the Ironhack AI Consulting & Automation Bootcamp.
 
-**Landing page:** see [`landing/index.html`](landing/index.html) &nbsp;·&nbsp; **Workflow:** [`workflow/application_prep_agent.json`](workflow/application_prep_agent.json)
+**Demo video:** DEMO_VIDEO_LINK &nbsp;·&nbsp; **Slides:** [`presentation/project3_slides.pdf`](presentation/project3_slides.pdf) &nbsp;·&nbsp; **Workflow:** [`workflow/application_prep_agent.json`](workflow/application_prep_agent.json) &nbsp;·&nbsp; **Landing page:** [`landing/index.html`](landing/index.html)
 
 ---
 
@@ -86,7 +86,9 @@ flowchart TD
     M --> N[Send email]
 ```
 
-A screenshot of the n8n canvas is in [`docs/n8n_canvas.png`](docs/n8n_canvas.png).
+Screenshots of the live workflow are in [`docs/screenshots/`](docs/screenshots/).
+
+![n8n agent workflow](docs/screenshots/n8n_canvas.png)
 
 ### Tools and APIs
 
@@ -121,22 +123,55 @@ A screenshot of the n8n canvas is in [`docs/n8n_canvas.png`](docs/n8n_canvas.png
 
 ## Setup
 
-**Requirements:** an n8n instance (cloud or self-hosted) with the LangChain AI nodes, plus accounts for OpenAI, Pinecone, Tavily and NewsAPI (free tiers are enough for testing), and a Gmail account with an app password for sending. There is no Python code, so there is no `requirements.txt`.
+### What to install
+- **n8n** (n8n Cloud or self-hosted) with the built-in AI (LangChain) nodes. Nothing else: there is no Python code, so there is no `requirements.txt`.
+- **Accounts and API keys** (free tiers are enough for testing): OpenAI, Pinecone, Tavily, NewsAPI. Jina Reader works without a key.
+- **A Gmail account** with 2-Step Verification and an app password, used to send the report.
 
-1. **Clone the repo** and copy `.env.example` to `.env` to keep track of your keys locally. n8n doesn't read this file; keys go into n8n credentials.
-2. **Create the Pinecone index:** name `application-prep`, one dense vector field named `_values`, dimension `1536`, metric `cosine`.
-3. **Create the n8n credentials:**
+### Environment variables
+The names of all keys are in [`.env.example`](.env.example). Copy it to `.env` and fill in your keys to keep track of them locally:
+
+```
+cp .env.example .env
+```
+
+| Variable | Used for |
+|---|---|
+| `OPENAI_API_KEY` | LLM steps and embeddings |
+| `TAVILY_API_KEY` | Web search and company deep read |
+| `NEWSAPI_KEY` | Company news |
+| `PINECONE_API_KEY`, `PINECONE_INDEX_NAME` | RAG knowledge base |
+| `JINA_API_KEY` | Optional: higher rate limit for reading job pages |
+| `SMTP_USER`, `SMTP_APP_PASSWORD` | Sending the email |
+
+n8n does not read `.env`: the same keys are entered once as **n8n credentials** (next section). `.env` is in `.gitignore` and must never be committed.
+
+### One-time setup
+1. **Create the Pinecone index:** name `application-prep`, one dense vector field named `_values`, dimension `1536`, metric `cosine`.
+2. **Create the n8n credentials:**
    - OpenAI API
    - Pinecone API
    - Header Auth for Tavily: name `Authorization`, value `Bearer <your key>`
    - Header Auth for NewsAPI: name `X-Api-Key`, value `<your key>`
    - SMTP for Gmail: host `smtp.gmail.com`, port `587`, SSL/TLS off, your Gmail address and app password
-4. **Import** `workflow/rag_loader.json`, attach the credentials, run it once for each file in `rag_docs/`, then run the test branch to check retrieval.
-5. **Import** `workflow/application_prep_agent.json`, attach the credentials, and set the sender address in the **11b. Send Email** node.
-6. **Activate** the workflow and open the form URL from the **1. Form Trigger** node.
-7. **Optional:** paste `assets/form_custom.css` into the Form Trigger's *Custom Form Styling* option, and point the buttons in `landing/index.html` to your form URL.
+3. **Load the knowledge base:** import `workflow/rag_loader.json`, attach the Pinecone and OpenAI credentials, run it once for each file in `rag_docs/`, then run the test branch to check that retrieval returns guideline text.
+4. **Import the agent:** import `workflow/application_prep_agent.json`, open each node with a warning icon and select the matching credential, and set your sender address in **11b. Send Email**. The exported files contain no credentials or keys.
+
+## How to run
+
+1. In n8n, open **Application Prep Agent** and **activate** (or publish) it.
+2. Open **1. Form Trigger** and copy the **Production URL**. Open it in a browser.
+3. Fill in the form:
+   - a job posting URL (or paste the description if the page is blocked, e.g. LinkedIn)
+   - a CV as a text-based PDF
+   - optionally, extra achievements that aren't on the CV
+   - the report language and your email
+4. Submit. The agent runs on its own; the report arrives by email, usually within a few minutes.
+5. To follow a run, open the workflow's **Executions** tab in n8n.
 
 **Try it with the demo candidate:** upload `sample_inputs/CV_Sofia_Lindqvist.pdf` and paste the contents of `sample_inputs/achievement_bank.md` into "Extra achievements". Sofia is fictional.
+
+**Optional:** paste `assets/form_custom.css` into the Form Trigger's *Custom Form Styling* option, and point the buttons in `landing/index.html` to your form URL.
 
 ---
 
@@ -164,7 +199,10 @@ Generated by the system, in [`sample_reports/`](sample_reports/):
 ├── sample_reports/           # reports generated by the system
 ├── landing/index.html        # product landing page
 ├── assets/                   # logo and form styling
-└── docs/                     # canvas screenshot, demo script
+├── presentation/             # slides as PDF
+└── docs/
+    ├── demo_script.md        # 6-minute demo plan
+    └── screenshots/          # screenshots of the live workflow
 ```
 
 ---
